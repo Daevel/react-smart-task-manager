@@ -21,17 +21,17 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const data = await login(email, password);
-      if(data) {
+      if (data) {
         toast.success("Login success: ", {
-        description: `Welcome ${data.user?.email} !`,
-        action: {
-          label: "OK",
-          onClick: () => console.log("OK clicked")
-        }
-      })
-      navigate("/dashboard");
+          description: `Welcome ${data.user?.email} !`,
+          action: {
+            label: "OK",
+            onClick: () => console.log("OK clicked")
+          }
+        })
+        navigate("/dashboard");
       }
-    } catch(error: any) {
+    } catch (error: any) {
       toast.error("Login error: ", {
         description: `Errore durante la fase di login ${error.message}`,
         action: {
@@ -75,7 +75,7 @@ export default function LoginPage() {
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                   <a
-                    href="#"
+                    href="/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
@@ -94,17 +94,17 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex-col gap-2">
           <Button form="login-form" type="submit" className="w-full">
-            { loading ? 'Login in corso...' : 'Login'}
+            {loading ? 'Login in corso...' : 'Login'}
           </Button>
           <Button variant="outline" className="w-full">
             Login with Google
           </Button>
           <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4" onClick={onSignupPage}>
-                Sign up
-              </a>
-            </div>
+            Don&apos;t have an account?{" "}
+            <a href="#" className="underline underline-offset-4" onClick={onSignupPage}>
+              Sign up
+            </a>
+          </div>
         </CardFooter>
       </Card>
     </div>

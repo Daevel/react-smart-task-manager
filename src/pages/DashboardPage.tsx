@@ -41,8 +41,6 @@ import { useTasks } from "@/hooks/useTasks";
 import { createTask, updateTaskStatus, deleteTask } from "@/api/tasks";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
-
-// ✅ New shadcn components
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
