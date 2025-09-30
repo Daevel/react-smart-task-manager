@@ -43,6 +43,7 @@ import { Card } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function DashboardPage() {
   const { tasks, loading, error } = useTasks();
@@ -80,37 +81,41 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 p-4 sm:p-6 gap-6">
+    <div className="flex flex-col min-h-screen p-4 sm:p-6 gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold">
           Welcome, <span className="text-primary">{user?.email ?? "Guest"}</span>
         </h1>
 
-        {/* Add Task Dialog */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto">+ New Task</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Task</DialogTitle>
-            </DialogHeader>
-            <div className="flex flex-col gap-4">
-              <Input
-                placeholder="Task title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <Textarea
-                placeholder="Task description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-              <Button onClick={handleAddTask}>Save</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* Actions (Dark mode + New Task) */}
+        <div className="flex gap-2 items-center">
+          <ThemeToggle />
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto">+ New Task</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Task</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col gap-4">
+                <Input
+                  placeholder="Task title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <Textarea
+                  placeholder="Task description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+                <Button onClick={handleAddTask}>Save</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Error state */}

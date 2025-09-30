@@ -4,12 +4,15 @@ import './index.css'
 import App from './App.tsx'
 import { Toaster } from 'sonner'
 import { AuthProvider } from './context/AuthContext.tsx'
+import { ThemeProvider } from './components/theme-provider.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-    <App/>
-    <Toaster richColors /> 
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+      <Toaster richColors />
     </AuthProvider>
   </StrictMode>,
 )
