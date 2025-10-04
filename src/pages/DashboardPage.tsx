@@ -25,25 +25,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 import { useTasks } from "@/hooks/useTasks";
-import { createTask, updateTaskStatus, deleteTask } from "@/api/tasks";
+import {
+  createTask,
+  updateTaskStatus,
+  deleteTask,
+  updateTask,
+} from "@/api/tasks";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { TaskActions } from "./TaskActions";
 
 export default function DashboardPage() {
   const { tasks, loading, error } = useTasks();
@@ -68,6 +63,16 @@ export default function DashboardPage() {
     window.location.reload();
   };
 
+  // Update task (edit)
+  const handleEditTask = async (
+    id: string,
+    title: string,
+    description: string,
+    assignedTo?: string
+  ) => {
+    await updateTask(id, { title, description, assigned_to: assignedTo });
+  };
+
   // Update status
   const handleStatusChange = async (taskId: string, status: string) => {
     await updateTaskStatus(taskId, status);
@@ -77,21 +82,23 @@ export default function DashboardPage() {
   // Delete task
   const handleDelete = async (taskId: string) => {
     await deleteTask(taskId);
-    window.location.reload();
   };
+
 
   return (
     <div className="flex flex-col min-h-screen p-4 sm:p-6 gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold">
-          Welcome, <span className="text-primary">{user?.email ?? "Guest"}</span>
+          Welcome,{" "}
+          <span className="text-primary">{user?.email ?? "Guest"}</span>
         </h1>
 
-        {/* Actions (Dark mode + New Task) */}
+        {/* Actions */}
         <div className="flex gap-2 items-center">
           <ThemeToggle />
 
+          {/* New Task */}
           <Dialog>
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto">+ New Task</Button>
@@ -141,7 +148,6 @@ export default function DashboardPage() {
             </TableHeader>
             <TableBody>
               {loading ? (
-                // Skeleton loader
                 [...Array(3)].map((_, i) => (
                   <TableRow key={i}>
                     <TableCell>
@@ -183,36 +189,21 @@ export default function DashboardPage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="todo">Todo</SelectItem>
-                          <SelectItem value="in_progress">In Progress</SelectItem>
+                          <SelectItem value="in_progress">
+                            In Progress
+                          </SelectItem>
                           <SelectItem value="done">Done</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm">
-                            Delete
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Task</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete "{task.title}"?
-                              This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDelete(task.id)}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <TaskActions
+                        task={task}
+                        onDelete={(id) => handleDelete(id)}
+                        onEdit={(id, title, description, assignedTo) =>
+                          handleEditTask(id, title, description, assignedTo)
+                        }
+                      />
                     </TableCell>
                   </TableRow>
                 ))

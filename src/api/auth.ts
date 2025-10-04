@@ -37,6 +37,17 @@ export async function getUser() {
   return data.user;
 }
 
+export async function getUsers() {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, email, full_name")
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+
 export function onAuthStateChange(callback: (event: string, session: unknown) => void) {
   return supabase.auth.onAuthStateChange((event, session) => {
     callback(event, session);

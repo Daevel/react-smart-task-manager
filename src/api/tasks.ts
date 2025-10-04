@@ -26,7 +26,6 @@ export async function createTask(task: {
   return data[0];
 }
 
-// Update task status
 export async function updateTaskStatus(taskId: string, status: string) {
   const { data, error } = await supabase
     .from("tasks")
@@ -37,6 +36,22 @@ export async function updateTaskStatus(taskId: string, status: string) {
   if (error) throw error;
   return data[0];
 }
+
+export async function updateTask(
+  id: string,
+  payload: { title: string; description: string; assigned_to?: string }
+) {
+  const { data, error } = await supabase
+    .from("tasks")
+    .update(payload)
+    .eq("id", id)
+    .select();
+
+  if (error) throw error;
+  return data[0];
+}
+
+
 
 // Delete task
 export async function deleteTask(taskId: string) {
