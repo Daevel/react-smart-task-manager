@@ -7,17 +7,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -48,6 +37,7 @@ interface TaskActionsProps {
 
 export function TaskActions({ task, users = [], onDelete, onEdit }: TaskActionsProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDescription, setEditDescription] = useState(task.description);
   const [assignedTo, setAssignedTo] = useState(task.assigned_to || "");
@@ -73,29 +63,27 @@ export function TaskActions({ task, users = [], onDelete, onEdit }: TaskActionsP
             Edit
           </DropdownMenuItem>
           {/* Delete Task */}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <DropdownMenuItem>Delete</DropdownMenuItem>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Task</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete "{task.title}"? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(task.id)}>
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)}>
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       {/* Edit Task Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogTrigger />
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Delete Task
+            </DialogTitle>
+          </DialogHeader>
+          <p>
+              Are you sure you want to delete "{task.title}"? This action cannot be undone.
+            </p>
+            <Button onClick={()=> onDelete(task.id)}>Save</Button>
+        </DialogContent>
+      </Dialog>
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogTrigger />
         <DialogContent>
