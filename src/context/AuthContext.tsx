@@ -5,11 +5,13 @@ import { supabase } from "@/api/supabaseClient";
 type AuthContextType = {
   user: User | null;
   loading: boolean;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>; // 👈 add this
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  setUser: () => {}, // 👈 default empty function
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -37,11 +39,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, setUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// custom hook
 export const useAuth = () => useContext(AuthContext);

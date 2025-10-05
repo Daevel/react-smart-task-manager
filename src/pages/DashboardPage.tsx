@@ -95,7 +95,16 @@ export default function DashboardPage() {
         </h1>
 
         {/* Actions */}
-        <div className="flex gap-2 items-center">
+        <div className="
+        sm:flex
+        sm:flex-col 
+        sm:items-start
+        lg:flex
+        lg:gap-2
+        lg:items-center 
+        lg:flex-row 
+        "
+        >
           <ThemeToggle />
           <CreateNewTask />
         </div>

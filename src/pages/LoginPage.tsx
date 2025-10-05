@@ -49,7 +49,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -95,9 +95,6 @@ export default function LoginPage() {
         <CardFooter className="flex-col gap-2">
           <Button form="login-form" type="submit" className="w-full">
             {loading ? 'Login in corso...' : 'Login'}
-          </Button>
-          <Button variant="outline" className="w-full">
-            Login with Google
           </Button>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}

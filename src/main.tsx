@@ -7,16 +7,19 @@ import { AuthProvider } from "./context/AuthContext.tsx";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 import { store } from "./store/store.ts";
 import { Provider } from "react-redux";
+import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AuthProvider>
-      <ThemeProvider>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </ThemeProvider>
-      <Toaster richColors />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <ThemeProvider>
+          <Provider store={store}>
+            <App />
+          </Provider>
+        </ThemeProvider>
+        <Toaster richColors />
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>
 );
