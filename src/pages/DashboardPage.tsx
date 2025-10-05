@@ -1,4 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "@/store/store";
+import {
+  fetchTasks,
+  editTask,
+  removeTask,
+  changeTaskStatus,
+} from "@/store/tasksSlice";
 import {
   Table,
   TableBody,
@@ -8,16 +16,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { TaskActions } from "./dialogs/TaskActions";
+import { CreateNewTask } from "./dialogs/CreateNewTask";
+import { useAuth } from "@/context/AuthContext";
 import {
   Select,
   SelectContent,
@@ -25,65 +30,60 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { useTasks } from "@/hooks/useTasks";
-import {
-  createTask,
-  updateTaskStatus,
-  deleteTask,
-  updateTask,
-} from "@/api/tasks";
-import { Card } from "@/components/ui/card";
-import { useAuth } from "@/context/AuthContext";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { TaskActions } from "./TaskActions";
+import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
-  const { tasks, loading, error } = useTasks();
+  const dispatch = useDispatch<AppDispatch>();
+
   const { user } = useAuth();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const {
+    list: tasks,
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.tasks);
 
-  // Add task
-  const handleAddTask = async () => {
-    if (!user) return;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    await createTask({
-      title,
-      description,
-      created_by: user.id,
-      assigned_to: user.id,
-    });
+  const totalTasks = tasks.length;
+  const totalPages = Math.ceil(totalTasks / rowsPerPage);
 
-    setTitle("");
-    setDescription("");
-    window.location.reload();
-  };
+  // Reset page if rows per page changes or data shrinks
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
 
-  // Update task (edit)
+  // Compute the current page’s slice
+  const paginatedTasks = tasks.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  useEffect(() => {
+    if (user?.id) dispatch(fetchTasks(user.id));
+  }, [user, dispatch]);
+
   const handleEditTask = async (
     id: string,
     title: string,
     description: string,
     assignedTo?: string
   ) => {
-    await updateTask(id, { title, description, assigned_to: assignedTo });
+    await dispatch(
+      editTask({ id, payload: { title, description, assigned_to: assignedTo } })
+    );
   };
 
-  // Update status
-  const handleStatusChange = async (taskId: string, status: string) => {
-    await updateTaskStatus(taskId, status);
-    window.location.reload();
-  };
-
-  // Delete task
   const handleDelete = async (taskId: string) => {
-    await deleteTask(taskId);
+    await dispatch(removeTask(taskId));
   };
 
+  const handleStatusChange = async (taskId: string, status: string) => {
+    await dispatch(changeTaskStatus({ id: taskId, status }));
+  };
 
   return (
     <div className="flex flex-col min-h-screen p-4 sm:p-6 gap-6">
@@ -97,35 +97,11 @@ export default function DashboardPage() {
         {/* Actions */}
         <div className="flex gap-2 items-center">
           <ThemeToggle />
-
-          {/* New Task */}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto">+ New Task</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Task</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col gap-4">
-                <Input
-                  placeholder="Task title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-                <Textarea
-                  placeholder="Task description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-                <Button onClick={handleAddTask}>Save</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <CreateNewTask />
         </div>
       </div>
 
-      {/* Error state */}
+      {/* Error */}
       {error && (
         <Alert variant="destructive">
           <AlertTitle>Error loading tasks</AlertTitle>
@@ -146,6 +122,7 @@ export default function DashboardPage() {
                 <TableHead className="w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {loading ? (
                 [...Array(3)].map((_, i) => (
@@ -171,7 +148,7 @@ export default function DashboardPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                tasks.map((task) => (
+                paginatedTasks.map((task) => (
                   <TableRow key={task.id}>
                     <TableCell className="font-medium">{task.title}</TableCell>
                     <TableCell className="max-w-[200px] truncate">
@@ -199,10 +176,8 @@ export default function DashboardPage() {
                     <TableCell>
                       <TaskActions
                         task={task}
-                        onDelete={(id) => handleDelete(id)}
-                        onEdit={(id, title, description, assignedTo) =>
-                          handleEditTask(id, title, description, assignedTo)
-                        }
+                        onDelete={handleDelete}
+                        onEdit={handleEditTask}
                       />
                     </TableCell>
                   </TableRow>
@@ -210,6 +185,56 @@ export default function DashboardPage() {
               )}
             </TableBody>
           </Table>
+        </div>
+        {/* Pagination Footer */}
+        <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t border-border mt-2">
+          {/* Rows per page selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              Rows per page:
+            </span>
+            <Select
+              value={rowsPerPage.toString()}
+              onValueChange={(value) => {
+                setRowsPerPage(Number(value));
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[80px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Page navigation */}
+          <div className="flex items-center gap-2 mt-4 sm:mt-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span className="text-sm">
+              Page {currentPage} of {totalPages || 1}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage >= totalPages || totalPages === 0}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </Card>
     </div>
