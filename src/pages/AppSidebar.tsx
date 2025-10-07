@@ -53,16 +53,17 @@ export default function AppSidebar() {
       {/* Sidebar itself */}
       <Sidebar
         side="left"
-        variant="sidebar"
+        variant="floating"
         className={`fixed z-40 top-0 left-0 h-full transition-transform duration-300 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0"
         }`}
       >
-        <SidebarHeader>
-          <div className="px-4 py-2 font-bold text-lg">SmartTask</div>
+        <SidebarHeader className="flex flex-row justify-start items-center">
+          <img src="src\assets\react.svg" width={20} height={20} alt="avatar img" />
+          <div className="py-2 font-bold text-lg">SmartTask</div>
         </SidebarHeader>
 
-        <SidebarContent className="flex-1 overflow-auto">
+        <SidebarContent className="flex-1 overflow-x-hidden">
           <SidebarGroup>
             <SidebarGroupLabel>Main</SidebarGroupLabel>
             <SidebarMenu>
@@ -120,7 +121,7 @@ export default function AppSidebar() {
                   <Button
                     variant="ghost"
                     onClick={handleLogout}
-                    className="flex w-full justify-start items-center gap-2 text-red-500"
+                    className="flex w-full justify-start items-center gap-2 text-primary"
                   >
                     <LogOut size={20} />
                     <span>Logout</span>
@@ -133,7 +134,7 @@ export default function AppSidebar() {
 
         <SidebarFooter>
           <div className="px-4 py-2 text-sm text-muted-foreground">
-            version 1.0
+            version 0.0 (alpha)
           </div>
         </SidebarFooter>
       </Sidebar>
